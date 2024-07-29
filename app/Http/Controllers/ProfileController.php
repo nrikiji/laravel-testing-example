@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Mail\UserNotify;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -73,6 +74,21 @@ class ProfileController extends Controller
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
+        ]);
+    }
+
+    public function requestExternalApi(Request $request): Response
+    {
+        $response = Http::get('https://jsonplaceholder.typicode.com/todos/1');
+
+        $body = json_decode($response->getBody(), true);
+
+        Log::info($body);
+
+        return Inertia::render('Profile/Edit', [
+            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+            'status' => session('status'),
+            'title' => $body['title'],
         ]);
     }
 }

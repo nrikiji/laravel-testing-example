@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Mail\UserNotify;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
@@ -115,6 +116,26 @@ class ProfileTest extends TestCase
             // $subject = $mail->subject;
             // $body = $mail->render();
             return true;
+        });
+    }
+
+    public function test外部APIからデータを取得すること()
+    {
+        Http::fake([
+            'https://jsonplaceholder.typicode.com/todos/1' => Http::response([
+                'title' => 'Test Title',
+            ], 200)
+        ]);
+
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)
+                        ->patch('/profile/request-external-api')
+                        ->assertStatus(200);
+
+        $response->assertInertia(function($page) {
+            $page->component('Profile/Edit')
+                ->where('title', 'Test Title');
         });
     }
 }

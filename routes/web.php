@@ -23,6 +23,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::patch('/profile/send-email', [ProfileController::class, 'sendEmail'])->name('profile.sendEmail');
+    Route::patch('/profile/request-external-api', [ProfileController::class, 'requestExternalApi'])->name('profile.requestExternalApi');
 });
 
 require __DIR__.'/auth.php';
