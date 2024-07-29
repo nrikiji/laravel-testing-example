@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Mail\UserNotify;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -95,5 +97,24 @@ class ProfileTest extends TestCase
             ->assertRedirect('/profile');
 
         $this->assertNotNull($user->fresh());
+    }
+
+    public function testテストメール送信ボタンが動作すること()
+    {
+        // 実際にメール送信は行わない
+        Mail::fake();
+
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+             ->patch('/profile/send-email')
+             ->assertStatus(200);
+
+        Mail::assertSent(UserNotify::class, function ($mail) {
+            // メールのタイトルと本文を取得できる
+            // $subject = $mail->subject;
+            // $body = $mail->render();
+            return true;
+        });
     }
 }
