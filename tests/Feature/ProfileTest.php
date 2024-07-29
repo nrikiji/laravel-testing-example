@@ -111,11 +111,8 @@ class ProfileTest extends TestCase
              ->patch('/profile/send-email')
              ->assertStatus(200);
 
-        Mail::assertSent(UserNotify::class, function ($mail) {
-            // メールのタイトルと本文を取得できる
-            // $subject = $mail->subject;
-            // $body = $mail->render();
-            return true;
+        Mail::assertSent(UserNotify::class, function ($mail) use ($user) {
+            return $mail->hasTo($user->email);
         });
     }
 
