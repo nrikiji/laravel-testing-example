@@ -1,0 +1,48 @@
+name: CI
+on: [push]
+jobs:
+
+  dusk-php:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Database
+        run: |
+          sudo systemctl start mysql
+          mysql -uroot -proot -e "CREATE DATABASE testing"
+
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Composer Install
+        run: |
+          sed -i \
+              -e 's|APP_URL=http://laravel.test|APP_URL=http://localhost|g' \
+              -e 's|DB_HOST=mysql|DB_HOST=localhost|g' \
+              -e 's|DB_USERNAME=sail|DB_USERNAME=root|g' \
+              -e 's|DB_PASSWORD=password|DB_PASSWORD=root|g' \
+              .env.dusk.local
+          cp .env.dusk.local .env
+          composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Npm Build
+        run: |
+          npm install
+          npm run build
+
+      - name: Upgrade and Start Chrome Driver
+        run: |
+          php artisan dusk:chrome-driver --detect
+          ./vendor/laravel/dusk/bin/chromedriver-linux &
+
+      - name: Run Laravel Server
+        run: sudo php artisan serve --port=80 --no-reload &
+
+      - name: Run Dusk Tests
+        run: |
+          php artisan test
+          php artisan dusk
+
