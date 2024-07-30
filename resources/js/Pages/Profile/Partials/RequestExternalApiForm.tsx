@@ -1,8 +1,5 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import { Link, useForm, usePage } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
 import { FormEventHandler } from 'react';
 import { PageProps } from '@/types';
@@ -24,7 +21,7 @@ export default function RequestExternalApiForm({ className = '' }: { className?:
                 <h2 className="text-lg font-medium text-gray-900">Request External Api</h2>
 
                 <p className="mt-1 text-sm text-gray-600">
-                    Test send to the email you are registering with.
+                    外部APIへリクエストします
                 </p>
             </header>
 

@@ -19,6 +19,10 @@ export default function SendEmailForm({ className = '' }: { className?: string }
         <section className={className}>
             <header>
                 <h2 className="text-lg font-medium text-gray-900">Send Test Email</h2>
+
+                <p className="mt-1 text-sm text-gray-600">
+                    ログイン中のユーザーにメールを送信します
+                </p>
             </header>
 
             <form onSubmit={submit} className="mt-6 space-y-6">
