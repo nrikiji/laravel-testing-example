@@ -1,0 +1,57 @@
+stages:
+  - build
+  - test
+
+variables:
+  MYSQL_ROOT_PASSWORD: root
+  MYSQL_USER: sail
+  MYSQL_PASSWORD: password
+  MYSQL_DATABASE: testing
+  DB_HOST: mysql
+  DB_CONNECTION: mysql
+
+build:
+  stage: build
+  image: chilio/laravel-dusk-ci:stable
+  script:
+    - composer install --no-progress --prefer-dist --optimize-autoloader
+    - npm install
+    - npm run build
+  cache:
+      key: ${CI_BUILD_REF_NAME}
+      paths:
+        - vendor
+        - node_modules
+  artifacts:
+    paths:
+      - public/build/*
+
+test:
+  stage: test
+  cache:
+    key: ${CI_BUILD_REF_NAME}
+    paths:
+      - vendor
+      - node_modules
+    policy: pull
+
+  services:
+    - name: mysql:8.4
+      alias: mysql-test
+
+  image: chilio/laravel-dusk-ci:stable
+  script:
+    - sed -i 's|APP_URL=http://laravel.test|APP_URL=http://localhost|g' .env.dusk.local
+    - cp .env.dusk.local .env
+    - configure-laravel
+    - start-nginx-ci-project
+    - php artisan dusk:install
+    - php artisan dusk --colors --debug
+
+  artifacts:
+    paths:
+      - ./storage/logs
+      - ./tests/Browser/screenshots
+      - ./tests/Browser/console
+      - ./public/build
+    when: always
